@@ -131,7 +131,7 @@ class ResNetBackbone(nn.Module):
 
     def init_backbone(self, path):
         """ Initializes the backbone weights for training. """
-        state_dict = torch.load(path, map_location='cpu', weights_only=True)
+        state_dict = torch.load(path, map_location='cuda', weights_only=False)
 
         # Replace layer1 -> layers.0 etc.
         keys = list(state_dict)
@@ -304,7 +304,7 @@ class DarkNetBackbone(nn.Module):
     def init_backbone(self, path):
         """ Initializes the backbone weights for training. """
         # Note: Using strict=False is berry scary. Triple check this.
-        self.load_state_dict(torch.load(path, map_location='cpu', weights_only=True), strict=False)
+        self.load_state_dict(torch.load(path, map_location='cuda', weights_only=False), strict=False)
 
 
 
@@ -409,7 +409,7 @@ class VGGBackbone(nn.Module):
 
     def init_backbone(self, path):
         """ Initializes the backbone weights for training. """
-        state_dict = torch.load(path, map_location='cpu', weights_only=True)
+        state_dict = torch.load(path, map_location='cuda', weights_only=False)
         state_dict = OrderedDict([(self.transform_key(k), v) for k,v in state_dict.items()])
 
         self.load_state_dict(state_dict, strict=False)
@@ -581,7 +581,7 @@ class MobileNetV2Backbone(nn.Module):
 
     def init_backbone(self, path):
         """ Initializes the backbone weights for training. """
-        checkpoint = torch.load(path, weights_only=True)
+        checkpoint = torch.load(path, weights_only=False)
 
         checkpoint.pop('classifier.1.weight')
         checkpoint.pop('classifier.1.bias')
