@@ -5,11 +5,11 @@ uv venv --python 3.10
 source .venv/bin/activate
 ```
 ```bash
-uv pip install cython
-uv pip install opencv-python pillow matplotlib
-uv pip install numpy==1.26.4
-uv pip install git+https://github.com/haotian-liu/cocoapi.git#"egg=pycocotools&subdirectory=PythonAPI"
-uv pip install GitPython termcolor tensorboard
+pip install cython
+pip install opencv-python pillow matplotlib
+pip install numpy==1.26.4
+pip install git+https://github.com/haotian-liu/cocoapi.git#"egg=pycocotools&subdirectory=PythonAPI"
+pip install GitPython termcolor tensorboard
 ```
 
 ---
