@@ -8,7 +8,7 @@ source .venv/bin/activate
 ```bash
 sudo apt update
 sudo apt install -y python3-pip
-pip install pip -U --break-system-packages
+pip install pip -U
 pip install cython --break-system-packages
 pip install opencv-python pillow matplotlib --break-system-packages
 pip install numpy==1.23.0 --break-system-packages
