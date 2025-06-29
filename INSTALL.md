@@ -1,4 +1,23 @@
 ## Installation
+
+```bash
+uv venv --python 3.10
+source .venv/bin/activate
+```
+```bash
+sudo apt update
+sudo apt install -y python3-pip
+pip install pip -U --break-system-packages
+pip install cython --break-system-packages
+pip install opencv-python pillow matplotlib --break-system-packages
+pip install numpy==1.23.0 --break-system-packages
+pip install pycocotools --break-system-packages
+pip install GitPython termcolor tensorboard --break-system-packages
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128 --break-system-packages
+```
+
+---
+
  - Set up a Python3 environment.
  - Install [Pytorch](http://pytorch.org/) 1.6.0 and TorchVision.
  - Install [TensorRT](https://developer.nvidia.com/tensorrt) 7.1.3.4 and [torch2trt](https://github.com/NVIDIA-AI-IOT/torch2trt) 0.1.0 (*optional* for evaluating models without TensorRT, currently TensorRT optimization only supports devices with [Tensor Cores](https://www.nvidia.com/en-us/data-center/tensor-cores/), and already included in [JetPack SDK](https://developer.nvidia.com/embedded/Jetpack) if using Jetson devices):
