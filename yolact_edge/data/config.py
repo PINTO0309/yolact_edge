@@ -56,7 +56,7 @@ COCO_LABEL_MAP = { 1:  1,  2:  2,  3:  3,  4:  4,  5:  5,  6:  6,  7:  7,  8:  8
 
 COCO_PERSON_CLASSES = ('person')
 
-COCO_PERSON_LABEL_MAP = { 1:  1}
+COCO_PERSON_LABEL_MAP = {1:  1}
 
 YOUTUBE_VIS_CLASSES = ('person', 'giant_panda', 'lizard', 'parrot', 'skateboard',
                        'sedan', 'ape', 'dog', 'snake', 'monkey', 'hand', 'rabbit',

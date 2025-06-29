@@ -132,6 +132,12 @@ def match(pos_thresh, neg_thresh, truths, priors, labels, crowd_boxes, loc_t, co
     """
     decoded_priors = decode(loc_data, priors, cfg.use_yolo_regressors) if cfg.use_prediction_matching else point_form(priors)
     
+    # Check if there are any ground truth boxes
+    if truths.size(0) == 0:
+        # No ground truth boxes, set all priors to background
+        conf_t[idx] = 0
+        return
+    
     # Size [num_objects, num_priors]
     overlaps = jaccard(truths, decoded_priors) if not cfg.use_change_matching else change(truths, decoded_priors)
 

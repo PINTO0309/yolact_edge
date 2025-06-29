@@ -123,7 +123,9 @@ class MultiBoxLoss(nn.Module):
                   truths, defaults, labels[idx], crowd_boxes,
                   loc_t, conf_t, idx_t, idx, loc_data[idx])
                   
-            gt_box_t[idx, :, :] = truths[idx_t[idx]]
+            # Only assign gt_box_t if there are truths
+            if truths.size(0) > 0:
+                gt_box_t[idx, :, :] = truths[idx_t[idx]]
 
         # wrap targets
         loc_t = Variable(loc_t, requires_grad=False)
@@ -213,14 +215,19 @@ class MultiBoxLoss(nn.Module):
             cur_class_t = class_t[idx]
 
             with torch.no_grad():
-                downsampled_masks = F.interpolate(mask_t[idx].unsqueeze(0), (mask_h, mask_w),
-                                                  mode=interpolation_mode, align_corners=False).squeeze(0)
-                downsampled_masks = downsampled_masks.gt(0.5).float()
-                
-                # Construct Semantic Segmentation
-                segment_t = torch.zeros_like(cur_segment, requires_grad=False)
-                for obj_idx in range(downsampled_masks.size(0)):
-                    segment_t[cur_class_t[obj_idx]] = torch.max(segment_t[cur_class_t[obj_idx]], downsampled_masks[obj_idx])
+                # Skip if there are no masks for this image
+                if mask_t[idx].size(0) == 0:
+                    # Use zeros for empty mask case
+                    segment_t = torch.zeros_like(cur_segment, requires_grad=False)
+                else:
+                    downsampled_masks = F.interpolate(mask_t[idx].unsqueeze(0), (mask_h, mask_w),
+                                                      mode=interpolation_mode, align_corners=False).squeeze(0)
+                    downsampled_masks = downsampled_masks.gt(0.5).float()
+                    
+                    # Construct Semantic Segmentation
+                    segment_t = torch.zeros_like(cur_segment, requires_grad=False)
+                    for obj_idx in range(downsampled_masks.size(0)):
+                        segment_t[cur_class_t[obj_idx]] = torch.max(segment_t[cur_class_t[obj_idx]], downsampled_masks[obj_idx])
             
             loss_s += F.binary_cross_entropy_with_logits(cur_segment, segment_t, reduction='sum')
         
@@ -438,6 +445,10 @@ class MultiBoxLoss(nn.Module):
         loss_d = 0 # Coefficient diversity loss
 
         for idx in range(mask_data.size(0)):
+            # Skip if there are no masks for this image
+            if masks[idx].size(0) == 0:
+                continue
+                
             with torch.no_grad():
                 downsampled_masks = F.interpolate(masks[idx].unsqueeze(0), (mask_h, mask_w),
                                                   mode=interpolation_mode, align_corners=False).squeeze(0)
