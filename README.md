@@ -173,6 +173,104 @@ python train.py --config=yolact_edge_config --resume=weights/yolact_edge_10_3210
 python train.py --help
 ```
 
+## YOLACT Edge Loss Types Report
+
+  ### Overview
+
+  YOLACT Edge uses multiple loss functions to train its instance segmentation model. The loss types are defined as ['B', 'C', 'M', 'P', 'D', 'E', 'S', 'F', 
+  'R', 'W'], each representing a different component of the model's training objective.
+
+  ### Loss Type Definitions
+
+  Core Detection and Segmentation Losses
+
+  B - Box Localization Loss
+
+  - Purpose: Regresses bounding box coordinates for detected objects
+  - Implementation: Smooth L1 loss between predicted and ground truth boxes
+  - Location: multibox_loss.py:147
+  - Formula: F.smooth_l1_loss(loc_p, loc_t, reduction='sum') * cfg.bbox_alpha
+
+  C - Class Confidence Loss
+
+  - Purpose: Classification loss for object categories
+  - Implementation:
+    - Focal loss for handling class imbalance
+    - OHEM (Online Hard Example Mining) with cross-entropy
+  - Location: multibox_loss.py:170-178
+  - Configurable: Can switch between focal loss and OHEM
+
+  M - Mask Loss
+
+  - Purpose: Instance segmentation mask prediction
+  - Implementation: Binary cross-entropy loss
+  - Location: multibox_loss.py:157-161
+  - Methods: Direct mask prediction or lincomb (linear combination)
+
+  P - Prototype Loss
+
+  - Purpose: Regularizes prototype mask activations
+  - Implementation:
+    - L1 regularization
+    - "Disjoint" loss for non-overlapping prototypes
+  - Location: multibox_loss.py:165-167
+
+  D - Coefficient Diversity Loss
+
+  - Purpose: Encourages diverse mask coefficients across instances
+  - Implementation: Prevents similar mask representations for different objects
+  - Location: multibox_loss.py:560
+
+  ### Auxiliary Losses
+
+  E - Class Existence Loss
+
+  - Purpose: Binary prediction of which classes exist in the image
+  - Implementation: Binary cross-entropy per class
+  - Location: multibox_loss.py:182
+
+  S - Semantic Segmentation Loss
+
+  - Purpose: Auxiliary semantic segmentation task
+  - Implementation: Per-pixel class prediction
+  - Location: multibox_loss.py:184
+
+  Video-Specific Losses
+
+  F - Flow Loss
+
+  - Purpose: Optical flow prediction for temporal consistency
+  - Implementation: L2 norm between predicted and ground truth flow
+  - Location: optical_flow_loss.py:19
+  - Usage: Only for video models
+
+  W - Warp/Feature Matching Loss
+
+  - Purpose: Ensures temporal feature consistency between frames
+  - Implementation: Feature matching after warping
+  - Location: yolact.py:1410
+  - Weight: cfg.flow.fm_loss_alpha
+
+  R - Reserved/Unused
+
+  - Status: Listed but not currently implemented
+  - Purpose: Potentially reserved for future regularization losses
+
+  ### Loss Weighting
+
+  Each loss is weighted by configuration parameters:
+  - Box loss: cfg.bbox_alpha
+  - Mask loss: cfg.mask_alpha
+  - Classification loss: cfg.conf_alpha
+  - And others defined in the config file
+
+  ### Usage in Training
+
+  The losses are combined into a total loss:
+  total_loss = sum([losses[k] * weight[k] for k in loss_types if k in losses])
+
+  These individual losses are displayed during training for monitoring model performance and debugging convergence issues.
+
 ### Training on video dataset
 ```Shell
 # Pre-train the image based model
