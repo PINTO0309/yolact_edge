@@ -135,6 +135,8 @@ ssd.pytorch/
 data/VOCdevkit/
 data/coco/images/
 data/coco/annotations/
+data/sama-coco/images/
+data/sama-coco/annotations/
 ap_data.pkl
 results/
 logs/
