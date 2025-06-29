@@ -11,7 +11,7 @@ pip install pip -U --break-system-packages
 pip install cython --break-system-packages
 pip install opencv-python pillow matplotlib --break-system-packages
 pip install numpy==1.26.4 --break-system-packages
-pip install git+https://github.com/haotian-liu/cocoapi.git#"egg=pycocotools&subdirectory=PythonAPI"  --break-system-packages
+pip install pycocotools --break-system-packages
 pip install GitPython termcolor tensorboard --break-system-packages
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128 --break-system-packages
 ```
