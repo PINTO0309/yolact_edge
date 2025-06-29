@@ -2,8 +2,8 @@
 ```
 ██╗   ██╗ ██████╗ ██╗      █████╗  ██████╗████████╗    ███████╗██████╗  ██████╗ ███████╗
 ╚██╗ ██╔╝██╔═══██╗██║     ██╔══██╗██╔════╝╚══██╔══╝    ██╔════╝██╔══██╗██╔════╝ ██╔════╝
- ╚████╔╝ ██║   ██║██║     ███████║██║        ██║       █████╗  ██║  ██║██║  ███╗█████╗  
-  ╚██╔╝  ██║   ██║██║     ██╔══██║██║        ██║       ██╔══╝  ██║  ██║██║   ██║██╔══╝  
+ ╚████╔╝ ██║   ██║██║     ███████║██║        ██║       █████╗  ██║  ██║██║  ███╗█████╗
+  ╚██╔╝  ██║   ██║██║     ██╔══██║██║        ██║       ██╔══╝  ██║  ██║██║   ██║██╔══╝
    ██║   ╚██████╔╝███████╗██║  ██║╚██████╗   ██║       ███████╗██████╔╝╚██████╔╝███████╗
    ╚═╝    ╚═════╝ ╚══════╝╚═╝  ╚═╝ ╚═════╝   ╚═╝       ╚══════╝╚═════╝  ╚═════╝ ╚══════╝
 ```
@@ -132,7 +132,7 @@ python eval.py --trained_model=weights/yolact_edge_54_800000.pth --score_thresho
 ### Video
 ```Shell
 # Display a video in real-time. "--video_multiframe" will process that many frames at once for improved performance.
-# If video_multiframe > 1, then the trt_batch_size should be increased to match it or surpass it. 
+# If video_multiframe > 1, then the trt_batch_size should be increased to match it or surpass it.
 python eval.py --trained_model=weights/yolact_edge_54_800000.pth --score_threshold=0.3 --top_k=100 --video_multiframe=2 --trt_batch_size 2 --video=my_video.mp4
 
 # Display a webcam feed in real-time. If you have multiple webcams pass the index of the webcam you want instead of 0.
@@ -177,7 +177,7 @@ python train.py --help
 
   ### Overview
 
-  YOLACT Edge uses multiple loss functions to train its instance segmentation model. The loss types are defined as ['B', 'C', 'M', 'P', 'D', 'E', 'S', 'F', 
+  YOLACT Edge uses multiple loss functions to train its instance segmentation model. The loss types are defined as ['B', 'C', 'M', 'P', 'D', 'E', 'S', 'F',
   'R', 'W'], each representing a different component of the model's training objective.
 
   ### Loss Type Definitions
@@ -271,6 +271,75 @@ python train.py --help
 
   These individual losses are displayed during training for monitoring model performance and debugging convergence issues.
 
+## Investigation Report: Impact of "iscrowd": 1 Annotations on Training and mAP
+
+### 1. What are iscrowd Annotations?
+
+  In the COCO dataset, "iscrowd": 1 is a special annotation used for densely packed objects (e.g., crowds) where individual instances are difficult to separate.
+
+### 2. Impact on Training
+
+#### 2.1 Data Preprocessing
+
+  - coco.py:161-169: Crowd annotations are separated from regular annotations and assigned category_id = -1
+  - Crowd annotations are always placed at the end of the target list
+
+#### 2.2 Loss Computation
+
+  - multibox_loss.py:110-124: Crowd boxes are split from regular boxes for each batch
+  - Crowd annotations are NOT used for training labels or masks
+
+#### 2.3 Anchor Matching
+
+  - box_utils.py:176-183: Anchors with IoU > crowd_iou_threshold (default 1.0) with crowd boxes are set as neutral (conf_t = -1)
+  - Neutral anchors do not contribute to loss computation (neither positive nor negative)
+
+#### 2.4 Special IoU Calculation
+
+  - box_utils.py:54-80: For crowds, IoU is computed as intersection/area_of_detection instead of intersection/union
+
+### 3. Impact on mAP Evaluation
+
+#### 3.1 Evaluation Processing
+
+  - eval.py:483-501: Detections matching crowd regions are ignored
+  - Detections matched with crowds are NOT counted as false positives
+
+#### 3.2 COCOeval Compatibility
+
+  - run_coco_eval.py: Uses official pycocotools.COCOeval
+  - COCOeval automatically handles iscrowd annotations appropriately
+
+### 4. Configuration Control
+
+  - crowd_iou_threshold parameter controls behavior:
+    - Default: 1.0 (disabled)
+    - Recommended: 0.7 (used in some configs)
+    - Lower values treat more anchors as neutral
+
+### 5. Practical Impact
+
+  Impact on Training:
+
+  1. Positive Effect: Prevents incorrect negative learning in dense regions
+  2. Training Stability: Model doesn't receive contradictory signals by treating ambiguous regions as neutral
+  3. Detection Accuracy: Model focuses on learning clear individual instances
+
+  Impact on mAP:
+
+  1. Fair Evaluation: Detections in dense regions aren't unfairly penalized as false positives
+  2. Practical Performance: Evaluation reflects real-world usage scenarios
+  3. COCO Standard Compliance: Consistent with official evaluation metrics
+
+### 6. Conclusion
+
+  "iscrowd": 1 annotations:
+  - During Training: Treated as neutral, do not contribute to loss
+  - During Evaluation: Detections are ignored, not counted as false positives
+  - Overall Effect: Enables more robust and practical model training with fair evaluation
+
+  This implementation follows the COCO dataset's standard approach, effectively mitigating negative impacts of densely packed objects on both training and evaluation.
+
 ### Training on video dataset
 ```Shell
 # Pre-train the image based model
@@ -325,7 +394,7 @@ my_custom_dataset = dataset_base.copy({
 ```
  - Note that: class IDs in the annotation file should start at 1 and increase sequentially on the order of `class_names`. If this isn't the case for your annotation file (like in COCO), see the field `label_map` in `dataset_base`.
  - Finally, in `yolact_edge_config` in the same file, change the value for `'dataset'` to `'my_custom_dataset'` or whatever you named the config object above and `'num_classes'` to number of classes in your dataset+1. Then you can use any of the training commands in the previous section.
- 
+
 
 ## Citation
 

@@ -69,9 +69,13 @@ def render_annotations(image_path, annotations, output_path):
                                    edgecolor=color, facecolor='none')
             ax.add_patch(rect)
             
-            # Add annotation ID as label
+            # Add annotation ID and iscrowd as label
             if 'id' in ann:
-                ax.text(x, y-5, f"ID: {ann['id']}", color=color, 
+                iscrowd = ann.get('iscrowd', 0)
+                label = f"ID: {ann['id']}"
+                if iscrowd == 1:
+                    label += " (crowd)"
+                ax.text(x, y-5, label, color=color, 
                        fontsize=8, weight='bold',
                        bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.7))
     
@@ -96,6 +100,9 @@ def main():
                         help='Path to image directory')
     parser.add_argument('--output-dir', type=str, default='annotation_samples',
                         help='Output directory for rendered images')
+    parser.add_argument('--iscrowd', type=str, choices=['all', '0', '1', 'mixed'],
+                        default='all',
+                        help='Filter by iscrowd value: 0 (individual), 1 (crowd), mixed (both), all (no filter)')
     args = parser.parse_args()
     
     # Load annotations
@@ -114,16 +121,38 @@ def main():
     # Create image_id to filename mapping
     id_to_info = {img['id']: img for img in data['images']}
     
-    # Get images that have annotations
-    annotated_images = list(image_to_anns.keys())
-    print(f"Found {len(annotated_images)} images with annotations")
+    # Filter images based on iscrowd parameter
+    if args.iscrowd != 'all':
+        filtered_images = []
+        for img_id, anns in image_to_anns.items():
+            iscrowd_values = set(ann.get('iscrowd', 0) for ann in anns)
+            
+            if args.iscrowd == '0' and iscrowd_values == {0}:
+                # Only individual annotations
+                filtered_images.append(img_id)
+            elif args.iscrowd == '1' and 1 in iscrowd_values and 0 not in iscrowd_values:
+                # Only crowd annotations
+                filtered_images.append(img_id)
+            elif args.iscrowd == 'mixed' and 0 in iscrowd_values and 1 in iscrowd_values:
+                # Both individual and crowd annotations
+                filtered_images.append(img_id)
+        
+        annotated_images = filtered_images
+        print(f"Found {len(annotated_images)} images with iscrowd={args.iscrowd}")
+    else:
+        # Get all images that have annotations
+        annotated_images = list(image_to_anns.keys())
+        print(f"Found {len(annotated_images)} images with annotations")
     
     # Select random images
     sample_size = min(args.num_samples, len(annotated_images))
     selected_ids = random.sample(annotated_images, sample_size)
     
-    # Create output directory
-    output_dir = Path(args.output_dir)
+    # Create output directory with iscrowd suffix if filtering
+    if args.iscrowd != 'all':
+        output_dir = Path(f"{args.output_dir}_iscrowd_{args.iscrowd}")
+    else:
+        output_dir = Path(args.output_dir)
     output_dir.mkdir(exist_ok=True)
     
     print(f"\nRendering {sample_size} sample images...")
