@@ -1,6 +1,7 @@
 ## Installation
 
 ```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
 uv venv --python 3.10
 source .venv/bin/activate
 ```
