@@ -7,6 +7,7 @@ source .venv/bin/activate
 ```bash
 uv pip install cython
 uv pip install opencv-python pillow matplotlib
+uv pip install numpy==1.26.4
 uv pip install git+https://github.com/haotian-liu/cocoapi.git#"egg=pycocotools&subdirectory=PythonAPI"
 uv pip install GitPython termcolor tensorboard
 ```
