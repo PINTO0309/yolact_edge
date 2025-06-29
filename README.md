@@ -162,9 +162,9 @@ Make sure to download the entire dataset using the commands above.
    - All weights are saved in the `./weights` directory by default with the file name `<config>_<epoch>_<iter>.pth`.
 ```Shell
 # Trains using the base edge config with a batch size of 8 (the default).
-python train.py --config=yolact_edge_mobilenetv2_config # mobilenetv2 backbone
-python train.py --config=yolact_resnet50_config # resnet50 backbone
-python train.py --config=yolact_edge_config # resnet101 backbone
+python train.py --config=yolact_edge_mobilenetv2_config  --log_folder ./logs # mobilenetv2 backbone
+python train.py --config=yolact_resnet50_config  --log_folder ./logs # resnet50 backbone
+python train.py --config=yolact_edge_config  --log_folder ./logs # resnet101 backbone
 
 # Resume training yolact_edge with a specific weight file and start from the iteration specified in the weight file's name.
 python train.py --config=yolact_edge_config --resume=weights/yolact_edge_10_32100.pth --start_iter=-1
