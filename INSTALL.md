@@ -1,4 +1,18 @@
 ## Installation
+
+```bash
+uv venv --python 3.10
+source .venv/bin/activate
+```
+```bash
+uv pip install cython
+uv pip install opencv-python pillow matplotlib
+uv pip install git+https://github.com/haotian-liu/cocoapi.git#"egg=pycocotools&subdirectory=PythonAPI"
+uv pip install GitPython termcolor tensorboard
+```
+
+---
+
  - Set up a Python3 environment.
  - Install [Pytorch](http://pytorch.org/) 1.6.0 and TorchVision.
  - Install [TensorRT](https://developer.nvidia.com/tensorrt) 7.1.3.4 and [torch2trt](https://github.com/NVIDIA-AI-IOT/torch2trt) 0.1.0 (*optional* for evaluating models without TensorRT, currently TensorRT optimization only supports devices with [Tensor Cores](https://www.nvidia.com/en-us/data-center/tensor-cores/), and already included in [JetPack SDK](https://developer.nvidia.com/embedded/Jetpack) if using Jetson devices):
