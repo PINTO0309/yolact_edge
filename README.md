@@ -154,9 +154,9 @@ You can use yolact_edge as a package in your own code. There are two steps to ma
 ## Training
 Make sure to download the entire dataset using the commands above.
  - To train, grab an imagenet-pretrained model and put it in `./weights`.
-   - For Resnet101, download `resnet101_reducedfc.pth` from [here](https://drive.google.com/file/d/1tvqFPd4bJtakOlmn-uIA492g2qurRChj/view?usp=sharing).
-   - For Resnet50, download `resnet50-19c8e357.pth` from [here](https://drive.google.com/file/d/1Jy3yCdbatgXa5YYIdTCRrSV0S9V5g1rn/view?usp=sharing).
-   - For MobileNetV2, download `mobilenet_v2-b0353104.pth` from [here](https://drive.google.com/file/d/1F8YAAWITIkZ_w-fVeetmQKMkfGYfHvUM/view?usp=sharing).
+   - For Resnet101, download `resnet101_reducedfc.pth` from [here](https://github.com/PINTO0309/yolact_edge/releases/download/imagenet-pretrained-weights/resnet101_reducedfc.pth).
+   - For Resnet50, download `resnet50-19c8e357.pth` from [here](https://github.com/PINTO0309/yolact_edge/releases/download/imagenet-pretrained-weights/resnet50-19c8e357.pth).
+   - For MobileNetV2, download `mobilenet_v2-b0353104.pth` from [here](https://github.com/PINTO0309/yolact_edge/releases/download/imagenet-pretrained-weights/mobilenet_v2-b0353104.pth).
  - Run one of the training commands below.
    - Note that you can press ctrl+c while training and it will save an `*_interrupt.pth` file at the current iteration.
    - All weights are saved in the `./weights` directory by default with the file name `<config>_<epoch>_<iter>.pth`.
