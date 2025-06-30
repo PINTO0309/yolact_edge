@@ -201,9 +201,9 @@ coco2017_person_dataset = dataset_base.copy({
     'name': 'COCO 2017 Person',
 
     'train_images': './data/sama-coco/images/train2017',
-    'train_info': './data/sama-coco/annotations/instances_train2017_person_only.json',
+    'train_info': './data/sama-coco/annotations/instances_train2017_person_only_no_crowd.json',
     'valid_images': './data/sama-coco/images/val2017',
-    'valid_info': './data/sama-coco/annotations/instances_val2017_person_only.json',
+    'valid_info': './data/sama-coco/annotations/instances_val2017_person_only_no_crowd.json',
 
     'class_names': COCO_PERSON_CLASSES,
     'label_map': COCO_PERSON_LABEL_MAP
@@ -751,7 +751,10 @@ yolact_base_config = coco_base_config.copy({
     'num_classes': len(coco2017_person_dataset.class_names) + 1, # coco2017_dataset
 
     # Image Size
-    'max_size': 550,
+    'max_size': 640, # 550
+    # Discard detections with width and height smaller than this (in absolute width and height)
+    'discard_box_width': 4 / 640, # 4 / 550
+    'discard_box_height': 4 / 640, # 4 / 550
 
     # Training params
     'lr_schedule': 'step',
