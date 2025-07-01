@@ -48,6 +48,8 @@ COCO models:
 
 ## Installation
 
+Read first: [Wrong output when running the colab file #212](https://github.com/WisconsinAIVision/yolact_edge/issues/212)
+
 See [INSTALL.md](INSTALL.md).
 
 Optionally, you can use the official [Dockerfile](docker) to set up full enivronment with one command.
