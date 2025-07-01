@@ -161,3 +161,4 @@ data/sbd
 data/video_files
 data/image_files
 data/calib_images
+*.png
